@@ -27,6 +27,27 @@ jobs:
           echo "keyPassword=${{ secrets.TV_KEY_PASSWORD }}" >> simple_live_tv_app/android/key.properties
           echo "keyAlias=${{ secrets.TV_KEY_ALIAS }}" >> simple_live_tv_app/android/key.properties
 
+      # Sync Version
+      - name: Sync TV App Version
+        run: |
+          # Extract version from main app
+          FULL_VERSION=$(grep '^version:' simple_live_app/pubspec.yaml | head -n 1 | awk '{print $2}')
+          echo "Detected main app version: $FULL_VERSION"
+          
+          # Split into version and build number
+          VERSION_NO_BUILD=$(echo $FULL_VERSION | cut -d'+' -f1)
+          BUILD_NUMBER=$(echo $FULL_VERSION | cut -d'+' -f2)
+          
+          # Update TV app pubspec (macOS sed)
+          sed -i '' "s/^version: .*/version: $FULL_VERSION/" simple_live_tv_app/pubspec.yaml
+          
+          # Update assets/tv_app_version.json (macOS sed)
+          sed -i '' "s/\"version\": \".*\"/\"version\": \"$VERSION_NO_BUILD\"/" assets/tv_app_version.json
+          sed -i '' "s/\"version_num\": .*,/\"version_num\": $BUILD_NUMBER,/" assets/tv_app_version.json
+          
+          cat simple_live_tv_app/pubspec.yaml | grep version:
+          cat assets/tv_app_version.json
+
       # 设置 JAVA 环境
       - uses: actions/setup-java@v4
         with:
@@ -55,7 +76,7 @@ jobs:
     
       # 上传 APK 至 Artifacts
       - name: Upload APK to Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: android_tv
           path: |
@@ -74,18 +95,5 @@ jobs:
       - name: Echo version content
         run: echo "${{ fromJson(steps.version.outputs.content).version_desc }}"
     
-      # 上传至 Release
-      - name: Upload Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: "${{ fromJson(steps.version.outputs.content).version }}"
-          body: "# Android TV \n${{ fromJson(steps.version.outputs.content).version_desc }}"
-          prerelease: ${{ fromJson(steps.version.outputs.content).prerelease }}
-          token: ${{ secrets.TOKEN }}
-          files: |
-            simple_live_tv_app/build/app/outputs/flutter-apk/app-x86_64-release.apk
-            simple_live_tv_app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            simple_live_tv_app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-        
       # 完成
       - run: echo "🍏 This job's status is ${{ job.status }}."
