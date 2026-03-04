@@ -588,7 +588,7 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
   /// 移除掉已到期的SC
   void removeSuperChats() async {
     var now = DateTime.now().millisecondsSinceEpoch;
-    superChats.removeWhere((x) => x.endTime.millisecondsSinceEpoch < now);
+    superChats.removeWhere((x) => x.endTime.millisecondsSinceEpoch <= now);
   }
 
   /// 添加历史记录
