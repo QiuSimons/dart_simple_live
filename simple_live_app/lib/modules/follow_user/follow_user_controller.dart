@@ -161,7 +161,7 @@ class FollowUserController extends BasePageController<FollowUser> {
       }
     }
     await FollowService.instance.removeFollowUser(follow.id);
-    refreshData();
+    filterData();
   }
 
   Future<void> updateFollow(FollowUser follow) async {

@@ -13,8 +13,8 @@ import 'package:simple_live_app/app/utils/duration_2_str_utils.dart';
 import 'package:simple_live_app/app/utils/dynamic_filter.dart';
 import 'package:simple_live_app/models/db/follow_user.dart';
 import 'package:simple_live_app/models/db/follow_user_tag.dart';
-import 'package:simple_live_app/services/db_service.dart';
 import 'package:simple_live_app/services/follow_service.dart';
+import 'package:simple_live_app/services/history_service.dart';
 
 class FollowAppSettingsController extends BaseController {
   final appC = Get.find<AppSettingsController>();
@@ -69,15 +69,16 @@ class FollowAppSettingsController extends BaseController {
     updateTagList();
   }
 
-  Future<void> updateTagOrder(int oldIndex, int newIndex) async {
+  void updateTagOrder(int oldIndex, int newIndex) {
     if (newIndex > oldIndex) newIndex -= 1; // 处理索引调整
     final item = userTagList.removeAt(oldIndex);
     String newTagKey = FractionalIndexing.generateKeyBetween(
         newIndex > 0 ? userTagList[newIndex - 1].id : null,
         newIndex < userTagList.length ? userTagList[newIndex].id : null);
-    final newTag = FollowUserTag(id: newTagKey, tag: item.tag, userId: item.userId);
-    userTagList.insert(newIndex, newTag);
-    await FollowService.instance.updateFollowTagOrder(item, newTag);
+    final newTag =
+        FollowUserTag(id: newTagKey, tag: item.tag, userId: item.userId);
+    FollowService.instance.updateFollowTagOrder(item, newTag);
+    updateTagList();
   }
 
   Future<void> followDataCheck() async {
@@ -247,7 +248,7 @@ class FollowAppSettingsController extends BaseController {
 
   List<FollowUser> buildAutoCleanPool() {
     var followList = FollowService.instance.followList;
-    var histories = DBService.instance.getHistories();
+    var histories = HistoryService.instance.getHistories();
     if (histories.isEmpty || followList.isEmpty) return [];
     // 筛选出历史记录里已关注的
     final followedIds =

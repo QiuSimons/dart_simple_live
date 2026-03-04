@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -201,10 +202,16 @@ class FollowService extends GetxService {
     listSortByMethod(curTagFollowList,  AppSettingsController.instance.followSortMethod.value);
   }
 
-  Future<void> updateFollowTagOrder(FollowUserTag oldTag,FollowUserTag newTag) async {
-    await DBService.instance.deleteFollowTag(oldTag.id);
-    await DBService.instance.updateFollowTag(newTag);
-    loadData(updateStatus: false);
+  void updateFollowTagOrder(FollowUserTag oldTag, FollowUserTag newTag) {
+    // 改变先落库再读库最后更新ui，这中间需要同步等待，数据流程糟糕，开发心智负担重
+    // 内存优先：实现外表操作结束后异步落库，多写代码 但逻辑较为简单
+    followTagList.removeWhere((x) => x.id == oldTag.id);
+    followTagList.add(newTag);
+    // hive 以 id排序，额外进行排序操作
+    followTagList.sort((tagA, tagB) => tagA.id.compareTo(tagB.id));
+
+    DBService.instance.deleteFollowTag(oldTag.id);
+    DBService.instance.updateFollowTag(newTag);
   }
 
   // 添加关注
@@ -286,6 +293,7 @@ class FollowService extends GetxService {
   }
 
   Future<void> loadData({bool updateStatus = true, int? cycle}) async {
+    // todo: 此操作只在初始化时调用一次
     var list = DBService.instance.getFollowList();
     getAllTagList();
     if (list.isEmpty) {
