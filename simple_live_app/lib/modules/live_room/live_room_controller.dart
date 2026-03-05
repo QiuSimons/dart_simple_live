@@ -114,6 +114,8 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
   var loadError = false.obs;
   Error? error;
 
+  int _count = 0;
+
   @override
   void onInit() {
     WidgetsBinding.instance.addObserver(this);
@@ -147,6 +149,12 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
       const Duration(milliseconds: 500),
       (timer) {
         _processDanmakuBuffer();
+        // sc同步计时调用 先刷后删
+        _count = (_count + 1) % 2;
+        if (_count == 0) {
+          superChats.refresh();
+          removeSuperChats();
+        }
       },
     );
   }
