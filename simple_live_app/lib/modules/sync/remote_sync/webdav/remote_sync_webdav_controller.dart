@@ -254,6 +254,8 @@ class RemoteSyncWebDAVController extends BaseController {
       // v1.8.3 修改为按平台备份/恢复用户设置
       var settingList = LocalStorageService.instance.settingsBox.toMap();
       settingList.remove(LocalStorageService.kHiveDbVer);
+      // 不同步webdav的密码,防止旧密码覆盖新密码
+      settingList.remove(LocalStorageService.kWebDAVPassword);
       var dataSettingListMap = {
         "data": {
           LocalStorageService.kHiveDbVer: AppSettingsController.instance.dbVer,
