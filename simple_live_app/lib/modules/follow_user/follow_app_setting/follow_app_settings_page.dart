@@ -81,6 +81,29 @@ class FollowSettingsPage extends GetView<FollowAppSettingsController> {
               Padding(
                 padding: AppStyle.edgeInsetsA12.copyWith(top: 24),
                 child: Text(
+                  "其他设置",
+                  style: Get.textTheme.titleSmall,
+                ),
+              ),
+              SettingsCard(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Obx(
+                      () => SettingsSwitch(
+                        value: controller.appC.hideOfflineFollow.value,
+                        title: "隐藏离线关注",
+                        onChanged: (e) {
+                          controller.setFollowSetting(e);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: AppStyle.edgeInsetsA12.copyWith(top: 24),
+                child: Text(
                   "自动更新设置",
                   style: Get.textTheme.titleSmall,
                 ),
@@ -174,22 +197,22 @@ class FollowSettingsPage extends GetView<FollowAppSettingsController> {
           SettingsAction(
             leading: const Icon(Remix.save_2_line),
             title: "导出文件",
-            onTap: ()=>FollowService.instance.exportFile(),
+            onTap: () => FollowService.instance.exportFile(),
           ),
           SettingsAction(
             leading: const Icon(Remix.folder_open_line),
             title: "导入文件",
-            onTap: ()=>FollowService.instance.inputFile(),
+            onTap: () => FollowService.instance.inputFile(),
           ),
           SettingsAction(
             leading: const Icon(Remix.text),
             title: "导出文本",
-            onTap: ()=>FollowService.instance.exportText(),
+            onTap: () => FollowService.instance.exportText(),
           ),
           SettingsAction(
             leading: const Icon(Remix.file_text_line),
             title: "导入文本",
-            onTap: ()=>FollowService.instance.inputText(),
+            onTap: () => FollowService.instance.inputText(),
           ),
         ],
       ),
