@@ -7,8 +7,9 @@ import 'package:simple_live_core/simple_live_core.dart';
 import 'package:simple_live_core/src/platforms/douyin/douyin_request_params.dart';
 import 'package:simple_live_core/src/common/js_engine.dart';
 import 'package:simple_live_core/src/common/web_socket_util.dart';
+import 'package:simple_live_core/src/platforms/douyin/proto/douyin.pb.dart';
 
-import 'proto/douyin.pb.dart';
+
 
 class DouyinDanmakuArgs {
   final String webRid;
