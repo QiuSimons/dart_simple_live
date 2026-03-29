@@ -91,7 +91,7 @@ void testSite(LiveSite site) async {
 
   LiveRoomDetail? roomDetail;
   test('getRoomDetail', () async {
-    roomDetail = await site.getRoomDetail(roomId: "3168536");
+    roomDetail = await site.getRoomDetail(roomId: "1111");
     expect(roomDetail, isNotNull);
     expect(roomDetail?.roomId, isNotEmpty);
     // expect(roomDetail?.danmakuData, isNotNull);
@@ -152,8 +152,8 @@ void testSite(LiveSite site) async {
 void main() {
   CoreLog.requestLogType = RequestLogType.short;
 
-  group('douyu tests', () {
-    testSite(DouyuSite());
+  group('bili tests', () {
+    testSite(BiliBiliSite());
   });
 }
 
